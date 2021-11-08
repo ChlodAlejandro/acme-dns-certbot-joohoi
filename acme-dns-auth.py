@@ -155,7 +155,7 @@ if __name__ == "__main__":
             msg = "Please add the following CNAME record to your main DNS zone:\n{}"
             cname = "{} CNAME {}.".format(VALIDATION_DOMAIN, account["fulldomain"])
             print(msg.format(cname))
-            if (INTERACTIVE):
+            if INTERACTIVE:
                 input("When you are done, press [ENTER] to continue.")
 
         # Update the TXT record in acme-dns instance
@@ -167,12 +167,12 @@ if __name__ == "__main__":
             print("Create a text file containing the following text:\n\n    {}\n".format(os.environ["CERTBOT_TOKEN"]))
             print("and make it accessible at\n\n    http://{}/.well-known/acme-challenge/{}\n".format(DOMAIN, VALIDATION_TOKEN)
                   
-            if (INTERACTIVE):
+            if INTERACTIVE:
                 input("\nOnce you've finished this challenge, press [ENTER] to continue.")
         else:
             print("Unknown challenge. Please perform the challenge based on the following domain and validation token:")
             print("  Domain: {}".format(VALIDATION_DOMAIN))
             print("  Token:  {}".format(VALIDATION_TOKEN))
-            if (INTERACTIVE):
+            if INTERACTIVE:
                 input("\nOnce you've finished this challenge, press [ENTER] to continue.")
         
