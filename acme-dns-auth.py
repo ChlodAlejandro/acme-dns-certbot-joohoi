@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import json
 import os
 import requests
@@ -19,11 +19,16 @@ FORCE_REGISTER = False
 ###   DO NOT EDIT BELOW THIS POINT   ###
 ###         HERE BE DRAGONS          ###
 
+INTERACTIVE = False
+WILDCARD = False
 DOMAIN = os.environ["CERTBOT_DOMAIN"]
 if DOMAIN.startswith("*."):
     DOMAIN = DOMAIN[2:]
+    WILDCARD = True
 VALIDATION_DOMAIN = "_acme-challenge."+DOMAIN
 VALIDATION_TOKEN = os.environ["CERTBOT_VALIDATION"]
+if sys.stdin.isatty():
+    INTERACTIVE = True
 
 
 class AcmeDnsClient(object):
@@ -133,22 +138,41 @@ class Storage(object):
             return None
 
 if __name__ == "__main__":
-    # Init
-    client = AcmeDnsClient(ACMEDNS_URL)
-    storage = Storage(STORAGE_PATH)
+    if WILDCARD:
+        # Init
+        client = AcmeDnsClient(ACMEDNS_URL)
+        storage = Storage(STORAGE_PATH)
 
-    # Check if an account already exists in storage
-    account = storage.fetch(DOMAIN)
-    if FORCE_REGISTER or not account:
-        # Create and save the new account
-        account = client.register_account(ALLOW_FROM)
-        storage.put(DOMAIN, account)
-        storage.save()
+        # Check if an account already exists in storage
+        account = storage.fetch(DOMAIN)
+        if FORCE_REGISTER or not account:
+            # Create and save the new account
+            account = client.register_account(ALLOW_FROM)
+            storage.put(DOMAIN, account)
+            storage.save()
 
-        # Display the notification for the user to update the main zone
-        msg = "Please add the following CNAME record to your main DNS zone:\n{}"
-        cname = "{} CNAME {}.".format(VALIDATION_DOMAIN, account["fulldomain"])
-        print(msg.format(cname))
+            # Display the notification for the user to update the main zone
+            msg = "Please add the following CNAME record to your main DNS zone:\n{}"
+            cname = "{} CNAME {}.".format(VALIDATION_DOMAIN, account["fulldomain"])
+            print(msg.format(cname))
+            if (INTERACTIVE):
+                input("When you are done, press [ENTER] to continue.")
 
-    # Update the TXT record in acme-dns instance
-    client.update_txt_record(account, VALIDATION_TOKEN)
+        # Update the TXT record in acme-dns instance
+        client.update_txt_record(account, VALIDATION_TOKEN)
+    else:
+        # This is likely HTTP-01. Check the env vars to be sure.
+        if "CERTBOT_TOKEN" in os.environ:
+            # Definitely HTTP-01.
+            print("Create a text file containing the following text:\n\n    {}\n".format(os.environ["CERTBOT_TOKEN"]))
+            print("and make it accessible at\n\n    http://{}/.well-known/acme-challenge/{}\n".format(DOMAIN, VALIDATION_TOKEN)
+                  
+            if (INTERACTIVE):
+                input("\nOnce you've finished this challenge, press [ENTER] to continue.")
+        else:
+            print("Unknown challenge. Please perform the challenge based on the following domain and validation token:")
+            print("  Domain: {}".format(VALIDATION_DOMAIN))
+            print("  Token:  {}".format(VALIDATION_TOKEN))
+            if (INTERACTIVE):
+                input("\nOnce you've finished this challenge, press [ENTER] to continue.")
+        
