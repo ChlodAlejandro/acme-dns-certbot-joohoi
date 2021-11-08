@@ -7,7 +7,7 @@ import sys
 ### EDIT THESE: Configuration values ###
 
 # URL to acme-dns instance
-ACMEDNS_URL = "https://auth.acme-dns.io"
+ACMEDNS_URL = "http://localhost:9000/"
 # Path for acme-dns credential storage
 STORAGE_PATH = "/etc/letsencrypt/acmedns.json"
 # Whitelist for address ranges to allow the updates from
@@ -166,7 +166,7 @@ if __name__ == "__main__":
             # Definitely HTTP-01.
             print("Create a text file containing the following text:\n\n    {}\n".format(os.environ["CERTBOT_TOKEN"]))
             print("and make it accessible at\n\n    http://{}/.well-known/acme-challenge/{}\n".format(DOMAIN, VALIDATION_TOKEN)
-                  
+            
             if INTERACTIVE:
                 input("\nOnce you've finished this challenge, press [ENTER] to continue.")
         else:
