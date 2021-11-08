@@ -165,7 +165,7 @@ if __name__ == "__main__":
         if "CERTBOT_TOKEN" in os.environ:
             # Definitely HTTP-01.
             print("Create a text file containing the following text:\n\n    {}\n".format(os.environ["CERTBOT_TOKEN"]))
-            print("and make it accessible at\n\n    http://{}/.well-known/acme-challenge/{}\n".format(DOMAIN, VALIDATION_TOKEN)
+            print("and make it accessible at\n\n    http://{}/.well-known/acme-challenge/{}\n".format(DOMAIN, VALIDATION_TOKEN))
             
             if INTERACTIVE:
                 input("\nOnce you've finished this challenge, press [ENTER] to continue.")
